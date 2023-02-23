@@ -48,3 +48,11 @@ func TestMainCountSequences(t *testing.T) {
 func TestMainCountSequencesLong(t *testing.T) {
 	testOutput(t, "--sequences", "sequences")
 }
+
+func TestMainCountNucleotides(t *testing.T) {
+	testOutput(t, "-n", "nucleotides")
+}
+
+func TestMainCountNucleotidesLong(t *testing.T) {
+	testOutput(t, "--nucleotides", "nucleotides")
+}
