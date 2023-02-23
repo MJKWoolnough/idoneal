@@ -1,11 +1,13 @@
 package main
 
 import (
+	"compress/gzip"
 	"flag"
 	"fmt"
 	"io"
 	"io/fs"
 	"os"
+	"strings"
 
 	"vimagination.zapto.org/idoneal/pkg/meta"
 )
@@ -24,6 +26,24 @@ var (
 	Exit                       = os.Exit
 	flagErrorHandler           = flag.ExitOnError
 )
+
+func openFile(file string) (io.ReadCloser, error) {
+	var (
+		f   io.ReadCloser
+		err error
+	)
+	f, err = FS.Open(file)
+	if err != nil {
+		return nil, fmt.Errorf("error opening file: %w\n", err)
+	}
+	if strings.HasSuffix(file, ".gz") {
+		f, err = gzip.NewReader(f)
+		if err != nil {
+			return nil, fmt.Errorf("error starting decompression: %w", err)
+		}
+	}
+	return f, nil
+}
 
 func main() {
 	var countSequences, countNucleotides bool
@@ -53,11 +73,9 @@ OPTIONS:
 	}
 
 	if countSequences {
-		f, err := FS.Open(file)
+		f, err := openFile(file)
 		if err != nil {
-			fmt.Fprintf(Stderr, "error opening file: %s\n", err)
-			Exit(2)
-			return
+			fmt.Fprintln(Stderr, err)
 		}
 		defer f.Close()
 		count, err := meta.CountSequences(f)
@@ -69,11 +87,9 @@ OPTIONS:
 		fmt.Fprintln(Stdout, count)
 	}
 	if countNucleotides {
-		f, err := FS.Open(file)
+		f, err := openFile(file)
 		if err != nil {
-			fmt.Fprintf(Stderr, "error opening file: %s\n", err)
-			Exit(2)
-			return
+			fmt.Fprintln(Stderr, err)
 		}
 		defer f.Close()
 		count, err := meta.CountNucleotides(f)
