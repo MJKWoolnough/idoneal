@@ -24,6 +24,8 @@ func init() {
 func testOutput(t *testing.T, flag, ext string) {
 	t.Helper()
 	for n, test := range [...]string{"a", "b", "c", "d", "e"} {
+		f, _ := FS.Open(fmt.Sprintf("%s.%s", test, ext))
+		expected, _ := io.ReadAll(f)
 		for m, compressed := range [...]string{"", ".gz"} {
 			var stdout, stderr strings.Builder
 			Stdout = &stdout
@@ -33,8 +35,6 @@ func testOutput(t *testing.T, flag, ext string) {
 			if stderr.Len() > 0 {
 				t.Errorf("test %d.%d: unexpected error: %s", n+1, m+1, stderr.String())
 			} else {
-				f, _ := FS.Open(fmt.Sprintf("%s.%s", test, ext))
-				expected, _ := io.ReadAll(f)
 				if output := stdout.String(); output != string(expected) {
 					t.Errorf("test %d.%d: expecting output %q, got %q", n+1, m+1, expected, output)
 				}
