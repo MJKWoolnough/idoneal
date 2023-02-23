@@ -5,6 +5,10 @@ import (
 	"io"
 )
 
+// CountNucleotides returns the number of Nucleotides in the passed FASTQ
+// formatted Reader.
+//
+// NB: No validation is performed on the data being read.
 func CountNucleotides(r io.Reader) (int, error) {
 	lr := cleaner(r)
 	var buf [1024]byte
