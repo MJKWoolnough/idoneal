@@ -26,7 +26,7 @@ var (
 )
 
 func main() {
-	var countSequences bool
+	var countSequences, countNucleotides bool
 
 	flags := flag.NewFlagSet(os.Args[0], flagErrorHandler)
 	flags.SetOutput(Stderr)
@@ -34,12 +34,15 @@ func main() {
 		fmt.Fprintf(Stderr, `Usage: %s [OPTIONS] FILE
 
 OPTIONS:
-  -h, --help       Print this help.
-  -s, --sequences  Print the number of sequences in the FILE.
+  -h, --help          Print this help.
+  -n, --nucleotides   Print the number of nucleotides in the FILE.
+  -s, --sequences     Print the number of sequences in the FILE.
 `, os.Args[0])
 	}
 	flags.BoolVar(&countSequences, "s", false, "")
 	flags.BoolVar(&countSequences, "sequences", false, "")
+	flags.BoolVar(&countNucleotides, "n", false, "")
+	flags.BoolVar(&countNucleotides, "nucleotides", false, "")
 	flags.Parse(os.Args[1:])
 
 	file := flags.Arg(0)
@@ -49,18 +52,33 @@ OPTIONS:
 		return
 	}
 
-	f, err := FS.Open(file)
-	if err != nil {
-		fmt.Fprintf(Stderr, "error opening file: %s\n", err)
-		Exit(2)
-		return
-	}
-	defer f.Close()
-
 	if countSequences {
+		f, err := FS.Open(file)
+		if err != nil {
+			fmt.Fprintf(Stderr, "error opening file: %s\n", err)
+			Exit(2)
+			return
+		}
+		defer f.Close()
 		count, err := meta.CountSequences(f)
 		if err != nil {
 			fmt.Fprintf(Stderr, "error while counting sequences: %s\n", err)
+			Exit(2)
+			return
+		}
+		fmt.Fprintln(Stdout, count)
+	}
+	if countNucleotides {
+		f, err := FS.Open(file)
+		if err != nil {
+			fmt.Fprintf(Stderr, "error opening file: %s\n", err)
+			Exit(2)
+			return
+		}
+		defer f.Close()
+		count, err := meta.CountNucleotides(f)
+		if err != nil {
+			fmt.Fprintf(Stderr, "error while counting nucleotides: %s\n", err)
 			Exit(2)
 			return
 		}
