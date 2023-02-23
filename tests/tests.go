@@ -5,5 +5,5 @@ import "embed"
 
 // FS contains all of the embedded test data.
 //
-//go:embed *.fastq *.sequences *.nucleotides
+//go:embed *.fastq *.fastq.gz *.sequences *.nucleotides
 var FS embed.FS
