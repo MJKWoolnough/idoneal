@@ -7,12 +7,42 @@ This project contains a CLI program to extract basic metadata from [FASTQ](https
 The following command can be used to install this program:
 
 ```
-go install vimagination.zapto.org/idoneal/cmd/idoneal@v1.0.0
+go install vimagination.zapto.org/idoneal/cmd/idoneal@v1.0.1
 ```
 
 This will download and compile a `idoneal` binary into either your $GOPATH/bin or $GOBIN directory.
 
 NB: You will need to have the [Go Programming Language](https://go.dev/) installed in order to use the above command.
+
+### Alternate Installation
+
+If you are unable to install Go, a Bash version of this functionality is available in the [/script/idoneal](/script/idoneal) file.
+
+This version relies on the following common commands being available.
+
+ - Bash
+ - cat
+ - grep
+ - tr
+ - wc
+ - zcat (for gzip support)
+ - zgrep (for gzip support)
+
+Downloading can be accomplished with one of the following commands:
+
+```
+wget https://raw.githubusercontent.com/MJKWoolnough/idoneal/v1.0.1/script/idoneal
+```
+
+```
+curl https://raw.githubusercontent.com/MJKWoolnough/idoneal/v1.0.1/script/idoneal -o idoneal
+```
+
+After downloading, use the following command to enable the execute bit:
+
+```
+chmod +x idoneal
+```
 
 ## Command Line Flags
 
@@ -24,7 +54,6 @@ FILE should be in FASTQ format, and can be gzip compressed if the filename ends 
 |--------------------|----------------------------------------------|
 | -s / --sequences   | Print the number of sequences in the FILE.   |
 | -n / --nucleotides | Print the number of nucleotides in the FILE. |
-
 
 ## Contributing
 
