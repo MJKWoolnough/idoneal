@@ -1,0 +1,74 @@
+#!/bin/bash
+
+set -euf -o pipefail;
+
+sequences=false;
+nucleotides=false;
+file="";
+
+printHelp () {
+	cat >&2 <<HEREDOC
+Usage: $0 [OPTIONS] FILE
+
+FILE should be in FASTQ format, and can be gzip compressed if the filename ends with .gz
+
+OPTIONS:
+  -h, --help          Print this help.
+  -n, --nucleotides   Print the number of nucleotides in the FILE.
+  -s, --sequences     Print the number of sequences in the FILE.
+HEREDOC
+}
+
+while [ $# -gt 0 ]; do
+	case "$1" in
+	-s|--sequences)
+		sequences=true;;
+	-n|--nucleotides)
+		nucleotides=true;;
+	-h|--help)
+		printHelp;
+		exit 0;;
+	-*)
+		echo -e "flag provided but not defined: $1\n" >&2;
+		printHelp;
+		exit 1;;
+	*)
+		file="$1";
+		break 2;;
+	esac;
+	shift;
+done;
+
+if [ -z "$file" ]; then
+	printHelp;
+	exit 0;
+fi;
+
+if [ ! -f "$file" ]; then
+	echo "error opening file: File Not Found" >&2;
+	exit 1;
+fi;
+
+$sequences || $nucleotides || {
+	printHelp;
+	exit 0;
+}
+
+g="grep"
+[ "${file: -3}" = ".gz" ] && g="zgrep";
+
+if $sequences; then
+	echo $(( $($g -cve "^$" "$file") >> 2 ));
+fi;
+
+if $nucleotides; then
+	lineNum=0;
+	count=0;
+	while read line; do
+		lineNum=$(( ( $lineNum + 1 ) % 4 ));
+		if [ $lineNum -eq 2 ]; then
+			count=$(( $count + $(echo "$line" | tr -d '\n' | wc -c) ));
+		fi;
+	done < <($g -v "^$" "$file");
+	echo $count;
+fi;
